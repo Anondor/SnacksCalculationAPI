@@ -1,0 +1,6 @@
+@SnacksCalculationAPI_HostAddress = http://localhost:5035
+
+GET {{SnacksCalculationAPI_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
