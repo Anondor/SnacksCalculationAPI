@@ -3,10 +3,12 @@ using System.Net;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using SnacksCalculationAPI.Models;
+using SnacksCalculationAPI.Filters;
 
 namespace SnacksCalculationAPI.Controllers
 {
     [Route("api/[controller]")]
+    [JwtAuthorize]
     [ApiController]
     public class UserController : ControllerBase
     {
