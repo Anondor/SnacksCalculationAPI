@@ -18,11 +18,11 @@ namespace SnacksCalculationAPI.Services.AuthService
             configuration = config;
             _context = context;
         }
-        public async Task<object> GetJWTToken(LoginModel model)
+        public async Task<object> GetJWTToken(LoginModel model,int userType)
         {
             try
             {
-                var userInfo = await _context.UserModels.FirstOrDefaultAsync(x => x.Phone == model.Phone && x.Password == model.Password && x.UserType==0 );
+                var userInfo = await _context.UserModels.FirstOrDefaultAsync(x => x.Phone == model.Phone && x.Password == model.Password && x.UserType== userType);
                 if (userInfo == null)
                     throw new Exception("Invalid HHT User");
 
