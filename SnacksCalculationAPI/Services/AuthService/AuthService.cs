@@ -37,6 +37,7 @@ namespace SnacksCalculationAPI.Services.AuthService
                     UserType= userInfo.UserType,
                     UserAgentInfo = "127.0.0.1",
 
+
                 };
                 var appClaimes = user
                                 .GetByName()
@@ -48,6 +49,7 @@ namespace SnacksCalculationAPI.Services.AuthService
                             new Claim(JwtRegisteredClaimNames.UniqueName,user.Name),
                             new Claim(JwtRegisteredClaimNames.Sub,user.Id.ToString()),
                             new Claim(JwtRegisteredClaimNames.Jti,Guid.NewGuid().ToString()),
+                            new Claim(JwtRegisteredClaimNames.Typ,user.UserType.ToString()),
                     };
                 claims.AddRange(appClaimes);
                 foreach (var role in user.RoleIdList)
