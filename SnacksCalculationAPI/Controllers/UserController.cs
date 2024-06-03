@@ -8,7 +8,7 @@ using SnacksCalculationAPI.Filters;
 namespace SnacksCalculationAPI.Controllers
 {
     [Route("api/[controller]")]
-    [JwtAuthorize]
+   
     [ApiController]
     public class UserController : ControllerBase
     {

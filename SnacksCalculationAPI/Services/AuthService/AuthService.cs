@@ -34,6 +34,7 @@ namespace SnacksCalculationAPI.Services.AuthService
                     Avatar = "/img/user.png",
                     Phone = userInfo.Phone,
                     Email = userInfo.Email,
+                    UserType= userInfo.UserType,
                     UserAgentInfo = "127.0.0.1",
 
                 };
@@ -70,6 +71,7 @@ namespace SnacksCalculationAPI.Services.AuthService
                     Name = userInfo.Name,
                     Phone = userInfo.Phone,
                     Email = userInfo.Email,
+                    userType = userInfo.UserType,
                     token = new JwtSecurityTokenHandler().WriteToken(token),
                     expiration = token.ValidTo,
 
