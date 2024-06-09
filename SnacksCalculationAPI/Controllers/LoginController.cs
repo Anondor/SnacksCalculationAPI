@@ -25,36 +25,7 @@ namespace SnacksCalculationAPI.Controllers
         [HttpPost("LoginAdmin")]
         public async Task<IActionResult> Login([FromBody] LoginModel model)
         {
-            /*  var response = new ApiResponse();
-              try
-              {
-                  var user =await _context.UserModels.FirstOrDefaultAsync(x=>x.Phone==model.Phone && x.Password==model.Password && x.UserType==0);
-                  //var user = await _context.UserModels.FirstOrDefault(x => x.Phone == model.Phone && x.Password == model.Password);
-                  if (user != null)
-                  {
-                      response.Result = user;
-                      response.Message = "Admin Login  Successfully";
-                      response.StatusCode = (int)HttpStatusCode.OK;
-                      return response;
-                  }
-                  else
-                  {
-                      response.Message = "Phone number or password is wrong";
-                      response.StatusCode = (int)HttpStatusCode.BadRequest;
-                      return response;
-
-                  }
-
-              }
-              catch (Exception ex)
-              {
-                  response.Result = null;
-                  response.StatusCode = (int)HttpStatusCode.BadRequest;
-                  response.ResponseException = ex.Message;
-                  response.IsError = true;
-                  return response;
-              }
-            */
+          
             var apiResult = new ApiResponse<IEnumerable<LoginModel>>
             {
                 Data = new List<LoginModel>()

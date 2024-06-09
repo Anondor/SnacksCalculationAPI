@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using SnacksCalculationAPI.Models;
 using SnacksCalculationAPI.Filters;
+using Microsoft.EntityFrameworkCore;
 
 namespace SnacksCalculationAPI.Controllers
 {
@@ -40,5 +41,30 @@ namespace SnacksCalculationAPI.Controllers
                 return response;
             }
         }
+
+        [HttpGet("UserList")]
+        public async Task<ActionResult<ApiResponse>> GetAllUser()
+        {
+            var response = new ApiResponse();
+
+            try
+            {
+                var userQuery=  _context.UserModels.AsQueryable();
+
+                var userList = await userQuery.ToListAsync();
+                response.Result = userList;
+                response.StatusCode = (int)HttpStatusCode.OK;
+                return response;
+            }
+            catch (Exception ex)
+            {
+                response.Result = null;
+                response.StatusCode = (int)HttpStatusCode.BadRequest;
+                response.ResponseException = ex.Message;
+                response.IsError = true;
+                return response;
+            }
+        }
+        
     }
 }
