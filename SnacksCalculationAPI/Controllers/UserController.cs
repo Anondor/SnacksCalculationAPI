@@ -25,7 +25,7 @@ namespace SnacksCalculationAPI.Controllers
 
             try
             {
-                var userQuery = _context.UserModels.FirstAsync(x=>(x.Phone==model.Phone||x.Email==model.Email));
+                var userQuery = _context.UserModels.FirstOrDefault(x=>(x.Phone==model.Phone||x.Email==model.Email));
                 if (userQuery != null)
                 {
                     response.Message = "Your phone number or email is already exists";

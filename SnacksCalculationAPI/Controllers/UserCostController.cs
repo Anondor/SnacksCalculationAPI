@@ -20,13 +20,13 @@ namespace SnacksCalculationAPI.Controllers
         }
         [HttpPost]
 
-        public async Task<ActionResult<ApiResponse>> Save(UserInformationModel model)
+        public async Task<ActionResult<ApiResponse>> Save(CostModel model)
         {
             var response = new ApiResponse();
 
             try
             {
-                await _context.UserInformationModels.AddAsync(model);
+                await _context.CostModels.AddAsync(model);
                 await _context.SaveChangesAsync();
 
                 response.StatusCode = (int)HttpStatusCode.OK;
@@ -44,12 +44,12 @@ namespace SnacksCalculationAPI.Controllers
         }
 
         [HttpPut("update")]
-        public async Task<ActionResult<ApiResponse>>Update(UserInformationModel model)
+        public async Task<ActionResult<ApiResponse>>Update(CostModel model)
         {
             var response = new ApiResponse();
             try
             {
-                var dbModel = await _context.UserInformationModels.FirstOrDefaultAsync(x => x.UserId == model.UserId && x.Date==model.Date);
+                var dbModel = await _context.CostModels.FirstOrDefaultAsync(x => x.UserId == model.UserId && x.Date==model.Date);
 
                 if (dbModel == null)
                 {
@@ -59,8 +59,8 @@ namespace SnacksCalculationAPI.Controllers
                 }
                 dbModel.Amount = model.Amount;
   
-                dbModel.ItemName = model.ItemName;
-                _context.UserInformationModels.Update(dbModel);
+                dbModel.Item = model.Item;
+                _context.CostModels.Update(dbModel);
                 await _context.SaveChangesAsync();
                 response.StatusCode = (int)HttpStatusCode.OK;
                 response.Message = "Data Updated";
