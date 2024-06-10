@@ -4,7 +4,10 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using SnacksCalculationAPI;
+using SnacksCalculationAPI.Models;
 using SnacksCalculationAPI.Services.AuthService;
+using SnacksCalculationAPI.Services.MailService.Implementation;
+using SnacksCalculationAPI.Services.MailService.Interface;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -24,6 +27,18 @@ builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddSwaggerGen(setup =>
 {
     // Include 'SecurityScheme' to use JWT Authentication
+    setup.SwaggerDoc("v1", new OpenApiInfo
+    {
+        Title = "Example API",
+        Version = "v1",
+        Description = "An example of an ASP.NET Core Web API",
+        Contact = new OpenApiContact
+        {
+            Name = "Example Contact",
+            Email = "example@example.com",
+            Url = new Uri("https://example.com/contact"),
+        },
+    });
     var jwtSecurityScheme = new OpenApiSecurityScheme
     {
         BearerFormat = "JWT",
@@ -70,6 +85,9 @@ builder.Services.AddAuthentication(opt =>
 
 
                 });
+builder.Services.Configure<MailSettings>(builder.Configuration.GetSection("MailSettings"));
+builder.Services.AddTransient<IMailService, MailService>();
+
 
 var app = builder.Build();
 
@@ -77,7 +95,11 @@ var app = builder.Build();
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
-    app.UseSwaggerUI();
+  //  app.UseSwaggerUI();
+    app.UseSwaggerUI(options =>
+    {
+        options.SwaggerEndpoint("/swagger/v1/swagger.json", "v1");
+    });
 }
 app.UseAuthentication();
 app.UseHttpsRedirection();
