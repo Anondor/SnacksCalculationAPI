@@ -25,12 +25,25 @@ namespace SnacksCalculationAPI.Controllers
 
             try
             {
-                await _context.UserModels.AddAsync(model);
+                var userQuery = _context.UserModels.FirstAsync(x=>(x.Phone==model.Phone||x.Email==model.Email));
+                if (userQuery != null)
+                {
+                    response.Message = "Your phone number or email is already exists";
+                    return response;
+                }
+
+                //  var userList = await userQuery.FirstAsync().where;
+                else
+                {    await _context.UserModels.AddAsync(model);
                 await _context.SaveChangesAsync();
 
                 response.StatusCode = (int)HttpStatusCode.OK;
                 response.Message = "User data  save Successfully";
                 return response;
+
+                }
+
+            
             }
             catch (Exception ex)
             {
