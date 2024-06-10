@@ -54,6 +54,46 @@ namespace SnacksCalculationAPI.Controllers
                 return response;
             }
         }
+        [HttpPost("addCost")]
+        public async Task<ActionResult<ApiResponse>> SaveCostInfo(CostModel[] model)
+        {
+            var response = new ApiResponse();
+
+            try
+            {
+                for(int i = 0;i< model.Length;i++)
+                {
+                    var userQuery = _context.CostModels.FirstOrDefault(x => (x.Date == model[i].Date && x.UserId == model[i].UserId));
+                    if (userQuery != null)
+                    {
+                        userQuery.Amount = model[0].Amount;
+                        userQuery.Item = model[0].Item;
+                        _context.CostModels.Update(userQuery);
+                        await _context.SaveChangesAsync();
+                    }
+                    else
+                    {
+                        await _context.CostModels.AddAsync(model[i]);
+                        await _context.SaveChangesAsync();
+
+                    }
+                }
+                response.StatusCode = (int)HttpStatusCode.OK;
+                response.Message = "User data  save Successfully";
+                return response;
+
+
+
+            }
+            catch (Exception ex)
+            {
+                response.Result = null;
+                response.StatusCode = (int)HttpStatusCode.BadRequest;
+                response.ResponseException = ex.Message;
+                response.IsError = true;
+                return response;
+            }
+        }
 
         [HttpGet("UserList")]
         public async Task<ActionResult<ApiResponse>> GetAllUser()

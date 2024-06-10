@@ -13,4 +13,5 @@ namespace SnacksCalculationAPI.Models
         public double Amount { get; set; }
         public string Item { get; set; }
     }
+
 }
