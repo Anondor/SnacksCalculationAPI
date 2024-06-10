@@ -22,65 +22,6 @@ namespace SnacksCalculationAPI.Controllers
             _context = context;
             _authService = authService1;
         }
-        [HttpPost("LoginAdmin")]
-        public async Task<IActionResult> Login([FromBody] LoginModel model)
-        {
-          
-            var apiResult = new ApiResponse<IEnumerable<LoginModel>>
-            {
-                Data = new List<LoginModel>()
-            };
-
-            if (ModelState.IsValid)
-            {
-                try
-                {
-                    var user = await _context.UserModels.FirstOrDefaultAsync(x => x.Phone == model.Phone && x.Password == model.Password && x.UserType == 0);
-                    if (user != null)
-                    {
-                        var result = await _authService.GetJWTToken(model,0);
-                        return OkResult(result);
-                    }
-                    else
-                    {
-                        throw new Exception("Invalid username or password.");
-                    }
-
-
-                }
-                catch (Exception ex)
-                {
-                    // ex.ToWriteLog();
-
-                    apiResult.StatusCode = 500;
-                    apiResult.Status = "Fail";
-                    apiResult.Msg = ex.Message;
-                    return BadRequest(apiResult);
-                }
-
-            }
-            return BadRequest();
-
-        }
-               private IActionResult OkResult(object data)
-        {
-            var apiResult = new ApiResponse
-            {
-                StatusCode = 200,
-                Message = "Successful",
-                Result = data 
-            
-        };
-            return ObjectResult(apiResult);
-        }
-        protected IActionResult ObjectResult(ApiResponse model)
-        {
-            var result = new ObjectResult(model)
-            {
-                StatusCode = model.StatusCode
-            };
-            return result;
-        }
 
         [HttpPost("LoginUser")]
         public async Task<IActionResult> LoginUser([FromBody] LoginModel model)
@@ -93,7 +34,7 @@ namespace SnacksCalculationAPI.Controllers
             {
                 try
                 {
-                    var user = await _context.UserModels.FirstOrDefaultAsync(x => x.Phone == model.Phone && x.Password == model.Password && x.UserType == 1);
+                    var user = await _context.UserModels.FirstOrDefaultAsync(x => x.Phone == model.Phone && x.Password == model.Password);
                     if (user != null)
                     {
                         var result = await _authService.GetJWTToken(model, 1);
@@ -121,5 +62,26 @@ namespace SnacksCalculationAPI.Controllers
 
 
         }
+        private IActionResult OkResult(object data)
+        {
+            var apiResult = new ApiResponse
+            {
+                StatusCode = 200,
+                Message = "Successful",
+                Result = data 
+            
+        };
+            return ObjectResult(apiResult);
+        }
+        protected IActionResult ObjectResult(ApiResponse model)
+        {
+            var result = new ObjectResult(model)
+            {
+                StatusCode = model.StatusCode
+            };
+            return result;
+        }
+
+      
     }
 }
