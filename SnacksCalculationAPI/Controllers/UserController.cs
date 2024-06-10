@@ -9,6 +9,7 @@ using Microsoft.EntityFrameworkCore;
 namespace SnacksCalculationAPI.Controllers
 {
     [Route("api/[controller]")]
+    [JwtAuthorize]
    
     [ApiController]
     public class UserController : ControllerBase
@@ -55,31 +56,39 @@ namespace SnacksCalculationAPI.Controllers
             }
         }
         [HttpPost("addCost")]
-        public async Task<ActionResult<ApiResponse>> SaveCostInfo(CostModel[] model)
+        public async Task<ActionResult<ApiResponse>> SaveCostInfo(UserCostModel model)
         {
             var response = new ApiResponse();
 
             try
             {
-                for(int i = 0;i< model.Length;i++)
+                for(int i = 0;i< model.CostData.Count; i++)
                 {
-                    var userQuery = _context.CostModels.FirstOrDefault(x => (x.Date == model[i].Date && x.UserId == model[i].UserId));
+                    var userQuery = _context.CostModels.FirstOrDefault(x => (x.Date == model.Date && x.UserId == model.CostData[i].UserId));
                     if (userQuery != null)
                     {
-                        userQuery.Amount = model[0].Amount;
-                        userQuery.Item = model[0].Item;
+                        userQuery.Amount = model.CostData[i].Amount;
+                        userQuery.Item = model.Item;
                         _context.CostModels.Update(userQuery);
                         await _context.SaveChangesAsync();
+                        response.Message = "User data  update Successfully";
                     }
                     else
                     {
-                        await _context.CostModels.AddAsync(model[i]);
+                        CostModel data=new CostModel();
+                       data.Item = model.Item;
+                        data.Amount = model.CostData[i].Amount;
+                        data.Date = model.Date;
+                        data.UserId=model.CostData[i].UserId;   
+
+                        await _context.CostModels.AddAsync(data);
                         await _context.SaveChangesAsync();
+                        response.Message = "User data  save Successfully";
 
                     }
                 }
                 response.StatusCode = (int)HttpStatusCode.OK;
-                response.Message = "User data  save Successfully";
+              
                 return response;
 
 

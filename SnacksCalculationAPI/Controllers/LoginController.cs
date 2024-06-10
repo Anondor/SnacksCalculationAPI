@@ -37,7 +37,7 @@ namespace SnacksCalculationAPI.Controllers
                     var user = await _context.UserModels.FirstOrDefaultAsync(x => x.Phone == model.Phone && x.Password == model.Password);
                     if (user != null)
                     {
-                        var result = await _authService.GetJWTToken(model, 1);
+                        var result = await _authService.GetJWTToken(model, user.UserType);
                         return OkResult(result);
                     }
                     else
