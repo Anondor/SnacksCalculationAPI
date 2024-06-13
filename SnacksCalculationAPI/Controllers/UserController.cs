@@ -114,6 +114,8 @@ namespace SnacksCalculationAPI.Controllers
                 var listQuery = from cm in _context.CostModels
                                 join um in _context.UserModels on cm.UserId equals um.Id
                                 where string.Compare(cm.Date, fromDate) >= 0 && string.Compare(cm.Date, toDate) <= 0
+                                orderby cm.UserId ascending
+
                                 select new
                                 {
                                     Id = cm.Id,
@@ -122,7 +124,7 @@ namespace SnacksCalculationAPI.Controllers
                                     Amount=cm.Amount,
                                     item=cm.Item,
                                     Name = um.Name,
-                                };
+                                } ;
                 var list = await listQuery.ToListAsync();
                 response.Result = list;
                 response.Message = "Success";
