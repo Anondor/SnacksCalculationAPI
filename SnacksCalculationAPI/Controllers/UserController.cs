@@ -15,6 +15,7 @@ namespace SnacksCalculationAPI.Controllers
     public class UserController : ControllerBase
     {
         private readonly APIDbContext _context;
+
         public UserController(APIDbContext context)
         {
             _context = context;
@@ -103,6 +104,31 @@ namespace SnacksCalculationAPI.Controllers
                 return response;
             }
         }
+        [HttpPost("getMonthlyCost")]
+        public async Task<ActionResult<ApiResponse>> getMonthlyCostInfo(string fromDate, string toDate)
+        {
+            var response = new ApiResponse();
+
+            try
+            {
+                var listQuery= _context.CostModels.AsQueryable();
+                listQuery = listQuery.Where(x => string.Compare(x.Date, fromDate) >= 0 && string.Compare(x.Date, toDate) <= 0);
+                var list = await listQuery.ToListAsync();
+                response.Result = list;
+                response.Message = "Success";
+                response.StatusCode = (int)HttpStatusCode.OK;
+                return response;
+            }
+            catch (Exception ex)
+            {
+                response.Result = null;
+                response.StatusCode = (int)HttpStatusCode.BadRequest;
+                response.ResponseException = ex.Message;
+                response.IsError = true;
+                return response;
+            }
+        }
+
 
         [HttpGet("UserList")]
         public async Task<ActionResult<ApiResponse>> GetAllUser()

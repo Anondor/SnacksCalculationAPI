@@ -17,7 +17,7 @@ namespace SnacksCalculationAPI.Models
     {
         public int Id { get; set; }
         public string Date { get; set; }
-       
+
         public string Item { get; set; }
 
         public List<UserCostData> CostData { get; set; }
@@ -29,5 +29,10 @@ namespace SnacksCalculationAPI.Models
         public double Amount { get; set; }
 
     }
+    public class monthlyDateModel
+     {
+        public string formDate { get; set; }
+        public string toDate { get; set; }
+     }
 
 }
