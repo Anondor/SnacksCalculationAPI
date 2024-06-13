@@ -111,8 +111,18 @@ namespace SnacksCalculationAPI.Controllers
 
             try
             {
-                var listQuery= _context.CostModels.AsQueryable();
-                listQuery = listQuery.Where(x => string.Compare(x.Date, fromDate) >= 0 && string.Compare(x.Date, toDate) <= 0);
+                var listQuery = from cm in _context.CostModels
+                                join um in _context.UserModels on cm.UserId equals um.Id
+                                where string.Compare(cm.Date, fromDate) >= 0 && string.Compare(cm.Date, toDate) <= 0
+                                select new
+                                {
+                                    Id = cm.Id,
+                                    UserId=cm.UserId,
+                                    Date=cm.Date,
+                                    Amount=cm.Amount,
+                                    item=cm.Item,
+                                    Name = um.Name,
+                                };
                 var list = await listQuery.ToListAsync();
                 response.Result = list;
                 response.Message = "Success";
