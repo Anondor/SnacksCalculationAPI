@@ -104,7 +104,7 @@ namespace SnacksCalculationAPI.Controllers
                 return response;
             }
         }
-        [HttpPost("getMonthlyCost")]
+        [HttpGet("getMonthlyCost")]
         public async Task<ActionResult<ApiResponse>> getMonthlyCostInfo(string fromDate, string toDate)
         {
             var response = new ApiResponse();
