@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using SnacksCalculationAPI.Models;
 using SnacksCalculationAPI.Filters;
 using Microsoft.EntityFrameworkCore;
+using SnacksCalculationAPI.Services.CostService;
 
 namespace SnacksCalculationAPI.Controllers
 {
@@ -15,6 +16,8 @@ namespace SnacksCalculationAPI.Controllers
     public class UserController : ControllerBase
     {
         private readonly APIDbContext _context;
+        private readonly CostModelService _service;
+
         public UserController(APIDbContext context)
         {
             _context = context;
@@ -103,6 +106,36 @@ namespace SnacksCalculationAPI.Controllers
                 return response;
             }
         }
+        [HttpPost("getMonthlyCost")]
+        public async Task<ActionResult<ApiResponse>> getMonthlyCostI([FromQuery] string formDate, [FromQuery] string toDate)
+        {
+            var response = new ApiResponse();
+
+            try
+            {
+                var list= _context.CostModels.Where(x => (x.Date >= formDate && x.Date<=toDate) )
+                                    .ToListAsync();
+
+                response.Message = "User data  update Successfully";
+                    
+                
+                response.StatusCode = (int)HttpStatusCode.OK;
+
+                return response;
+
+
+
+            }
+            catch (Exception ex)
+            {
+                response.Result = null;
+                response.StatusCode = (int)HttpStatusCode.BadRequest;
+                response.ResponseException = ex.Message;
+                response.IsError = true;
+                return response;
+            }
+        }
+
 
         [HttpGet("UserList")]
         public async Task<ActionResult<ApiResponse>> GetAllUser()
