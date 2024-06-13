@@ -5,7 +5,6 @@ using Microsoft.AspNetCore.Mvc;
 using SnacksCalculationAPI.Models;
 using SnacksCalculationAPI.Filters;
 using Microsoft.EntityFrameworkCore;
-using SnacksCalculationAPI.Services.CostService;
 
 namespace SnacksCalculationAPI.Controllers
 {
@@ -16,7 +15,6 @@ namespace SnacksCalculationAPI.Controllers
     public class UserController : ControllerBase
     {
         private readonly APIDbContext _context;
-        private readonly CostModelService _service;
 
         public UserController(APIDbContext context)
         {
