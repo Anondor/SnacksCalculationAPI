@@ -107,17 +107,18 @@ namespace SnacksCalculationAPI.Controllers
             }
         }
         [HttpPost("getMonthlyCost")]
-        public async Task<ActionResult<ApiResponse>> getMonthlyCostI([FromQuery] string formDate, [FromQuery] string toDate)
+        public async Task<ActionResult<ApiResponse>> getMonthlyCostInfo(string fromDate, string toDate)
         {
             var response = new ApiResponse();
 
             try
             {
-                var list= _context.CostModels.Where(x => (x.Date >= formDate && x.Date<=toDate) )
-                                    .ToListAsync();
+                var listQuery= _context.CostModels.AsQueryable();
+                listQuery =listQuery.Where(x => x.Date == fromDate && x.Date==toDate);
 
-                response.Message = "User data  update Successfully";
-                    
+                response.Message = "Success";
+                var list=await listQuery.ToListAsync();
+                    response.Result=list;
                 
                 response.StatusCode = (int)HttpStatusCode.OK;
 
