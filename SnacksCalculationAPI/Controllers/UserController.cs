@@ -114,18 +114,12 @@ namespace SnacksCalculationAPI.Controllers
             try
             {
                 var listQuery= _context.CostModels.AsQueryable();
-                listQuery =listQuery.Where(x => x.Date == fromDate && x.Date==toDate);
-
+                listQuery = listQuery.Where(x => string.Compare(x.Date, fromDate) >= 0 && string.Compare(x.Date, toDate) <= 0);
+                var list = await listQuery.ToListAsync();
+                response.Result = list;
                 response.Message = "Success";
-                var list=await listQuery.ToListAsync();
-                    response.Result=list;
-                
                 response.StatusCode = (int)HttpStatusCode.OK;
-
                 return response;
-
-
-
             }
             catch (Exception ex)
             {
