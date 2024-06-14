@@ -149,7 +149,7 @@ namespace SnacksCalculationAPI.Controllers
 
             try
             {
-                var userQuery=  _context.UserModels.AsQueryable();
+                var userQuery = _context.UserModels.AsQueryable();
 
                 var userList = await userQuery.ToListAsync();
                 response.Result = userList;
