@@ -20,8 +20,8 @@ namespace SnacksCalculationAPI.Models
 
         public string Item { get; set; }
 
-        public List<UserCostData> CostData { get; set; }
-
+        public int UserId { get; set; }
+        public double Amount { get; set; }
     }
     public class UserCostData
     {
