@@ -56,15 +56,7 @@ namespace SnacksCalculationAPI.Controllers
               
                 var list = await listQuery.ToListAsync();
 
-                      /*  var sumByUserId = context.Transactions
-                .GroupBy(t => t.UserId)
-                .Select(g => new
-                {
-                    UserId = g.Key,
-                    TotalAmount = g.Sum(t => t.Amount)
-                })
-                .ToList();
-                      */
+        
 
                 response.Result = list;
 
@@ -75,7 +67,34 @@ namespace SnacksCalculationAPI.Controllers
                 response.StatusCode = (int)HttpStatusCode.BadRequest;
                 response.ResponseException = ex.Message;
                 response.IsError = true;
-               // return response;
+            }
+
+            return response;
+        }
+        [HttpGet("userCostAmount")]
+        public async Task<ActionResult<ApiResponse>> getAllUserCostMoney()
+        {
+            var response = new ApiResponse();
+            try
+            {
+                var listQuery = _context.CostModels.GroupBy(x => x.UserId).Select(g => new
+                {
+                    UserId = g.Key,
+                    TotalAmount = g.Sum(t => t.Amount)
+                });
+
+                var list = await listQuery.ToListAsync();
+
+
+                response.Result = list;
+
+            }
+            catch (Exception ex)
+            {
+                response.Result = null;
+                response.StatusCode = (int)HttpStatusCode.BadRequest;
+                response.ResponseException = ex.Message;
+                response.IsError = true;
             }
 
             return response;
