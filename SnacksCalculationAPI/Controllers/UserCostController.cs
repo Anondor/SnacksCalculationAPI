@@ -20,14 +20,14 @@ namespace SnacksCalculationAPI.Controllers
         }
         [HttpPost]
 
-        public async Task<ActionResult<ApiResponse>> Save(CostModel model)
+        public async Task<ActionResult<ApiResponse>> SaveAmount(UserInformationModel model)
         {
             var response = new ApiResponse();
 
             try
             {
-                await _context.CostModels.AddAsync(model);
-                await _context.SaveChangesAsync();
+                 await _context.UserInformationModels.AddAsync(model);
+               await _context.SaveChangesAsync();
 
                 response.StatusCode = (int)HttpStatusCode.OK;
                 response.Message = "User Cost Information  save Successfully";
@@ -41,6 +41,44 @@ namespace SnacksCalculationAPI.Controllers
                 response.IsError = true;
                 return response;
             }
+        }
+        [HttpGet("userAmount")]
+        public async Task<ActionResult<ApiResponse>> getAllUserMoney()
+        {
+            var response = new ApiResponse();   
+            try
+            {
+                var listQuery = _context.UserInformationModels.GroupBy(x => x.UserId).Select(g => new
+                {
+                    UserId = g.Key,
+                    TotalAmount = g.Sum(t => t.Amount)
+                });
+              
+                var list = await listQuery.ToListAsync();
+
+                      /*  var sumByUserId = context.Transactions
+                .GroupBy(t => t.UserId)
+                .Select(g => new
+                {
+                    UserId = g.Key,
+                    TotalAmount = g.Sum(t => t.Amount)
+                })
+                .ToList();
+                      */
+
+                response.Result = list;
+
+            }
+            catch (Exception ex)
+            {
+                response.Result = null;
+                response.StatusCode = (int)HttpStatusCode.BadRequest;
+                response.ResponseException = ex.Message;
+                response.IsError = true;
+               // return response;
+            }
+
+            return response;
         }
 
         [HttpPut("update")]

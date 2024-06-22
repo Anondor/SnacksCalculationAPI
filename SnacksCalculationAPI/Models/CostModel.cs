@@ -35,4 +35,6 @@ namespace SnacksCalculationAPI.Models
         public string toDate { get; set; }
      }
 
+
+
 }
