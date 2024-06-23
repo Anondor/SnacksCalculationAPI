@@ -5,6 +5,8 @@ using Microsoft.AspNetCore.Mvc;
 using SnacksCalculationAPI.Models;
 using SnacksCalculationAPI.Filters;
 using Microsoft.EntityFrameworkCore;
+using SnacksCalculationAPI.Services.Common.Interfaces;
+using SnacksCalculationAPI.Services.FileUtility.Implementation;
 
 namespace SnacksCalculationAPI.Controllers
 {
@@ -15,10 +17,13 @@ namespace SnacksCalculationAPI.Controllers
     public class UserController : ControllerBase
     {
         private readonly APIDbContext _context;
+        private readonly ICommonService _commonService;
 
-        public UserController(APIDbContext context)
+
+        public UserController(APIDbContext context, ICommonService commonService)
         {
             _context = context;
+            _commonService = commonService;
         }
         [HttpPost]
         public async Task<ActionResult<ApiResponse>>Save(UserModel model)
@@ -34,7 +39,6 @@ namespace SnacksCalculationAPI.Controllers
                     return response;
                 }
 
-                //  var userList = await userQuery.FirstAsync().where;
                 else
                 {    await _context.UserModels.AddAsync(model);
                 await _context.SaveChangesAsync();
@@ -105,7 +109,23 @@ namespace SnacksCalculationAPI.Controllers
                 return response;
             }
         }
-        [HttpGet("getMonthlyCost")]
+        [HttpGet("exportReport")]
+
+        public async Task<FileContentResult> exportReport(string fromDate, string toDate)
+        {
+            FileData fileData = await _commonService.GetMonthlyDetailsExcel(fromDate, toDate);
+
+            var cd = new System.Net.Mime.ContentDisposition
+            {
+                FileName = fileData.Name,
+                Inline = true,
+            };
+
+
+            HttpContext.Response.Headers.Add("Content-Disposition", cd.ToString());
+            return File(fileData.Data, "application/octet-stream");
+        }
+            [HttpGet("getMonthlyCost")]
         public async Task<ActionResult<ApiResponse>> getMonthlyCostInfo(string fromDate, string toDate)
         {
             var response = new ApiResponse();
