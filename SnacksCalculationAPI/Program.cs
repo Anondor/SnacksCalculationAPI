@@ -3,8 +3,13 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using OfficeOpenXml;
 using SnacksCalculationAPI;
 using SnacksCalculationAPI.Services.AuthService;
+using SnacksCalculationAPI.Services.Common.Implementation;
+using SnacksCalculationAPI.Services.Common.Interfaces;
+using SnacksCalculationAPI.Services.FileUtility.Implementation;
+using SnacksCalculationAPI.Services.FileUtility.Interfaces;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -21,6 +26,8 @@ builder.Services.AddCors(options =>
 });
 builder.Services.AddDbContext<APIDbContext>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<ICommonService, CommonService>();
+builder.Services.AddScoped<IFileService, FileService>();
 builder.Services.AddSwaggerGen(setup =>
 {
     // Include 'SecurityScheme' to use JWT Authentication
@@ -71,6 +78,7 @@ builder.Services.AddAuthentication(opt =>
 
 
                 });
+ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
 
 var app = builder.Build();
 

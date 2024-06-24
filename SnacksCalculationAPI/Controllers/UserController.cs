@@ -125,7 +125,8 @@ namespace SnacksCalculationAPI.Controllers
             HttpContext.Response.Headers.Add("Content-Disposition", cd.ToString());
             return File(fileData.Data, "application/octet-stream");
         }
-            [HttpGet("getMonthlyCost")]
+          
+        [HttpGet("getMonthlyCost")]
         public async Task<ActionResult<ApiResponse>> getMonthlyCostInfo(string fromDate, string toDate)
         {
             var response = new ApiResponse();
