@@ -45,21 +45,7 @@ namespace SnacksCalculationAPI.Services.Common.Implementation
                             };
             var result = await listQuery.ToListAsync();
             var userQuery = _context.UserModels.AsQueryable();
-            /*
-            var sumByUserId = _context.UserInformationModels
-                    .GroupBy(t => t.UserId)
-                    .Select(g => new UserCostData
-                    {
-                        UserId = g.Key,
-                        Amount = g.Sum(t => t.Amount)
-                    })
-                    .ToList();
-            
-            */
-   
-
-   
-          
+    
             var userList = await userQuery.ToListAsync();
             ExcelPackage excel = new ExcelPackage();
 
@@ -77,7 +63,7 @@ namespace SnacksCalculationAPI.Services.Common.Implementation
             _file.SetTableStyle(workSheet, headers.Count);
             _file.SetHeaderStyle(workSheet, headers.Count);
             _file.InsertHeaders(headers, workSheet);
-             Insert_AuditReportExcelRows2(toDate, headersId, result, workSheet);
+             Insert_ExcelRows(toDate, headersId, result, workSheet);
             _file.AutoExcelFitColumns(headers.Count, workSheet);
 
             FileData fileData = _file.GetFileData(excel.GetAsByteArray());
@@ -86,7 +72,7 @@ namespace SnacksCalculationAPI.Services.Common.Implementation
         }
 
 
-        private void Insert_AuditReportExcelRows2(string toDate,List<int> headersId, List<UserCostModel> result, ExcelWorksheet workSheet)
+        private void Insert_ExcelRows(string toDate,List<int> headersId, List<UserCostModel> result, ExcelWorksheet workSheet)
         {
             var perUserTotalAmount = _context.UserInformationModels
                    .GroupBy(t => t.UserId)
@@ -107,7 +93,8 @@ namespace SnacksCalculationAPI.Services.Common.Implementation
             }
 
             int column;
-            for (int row=0;row< rowNumber; row++) {
+            int row;
+            for ( row=0;row< rowNumber; row++) {
                  column = 1;
                 var rowVal = (row + 1);
                var  day = rowVal.ToString();
@@ -132,7 +119,16 @@ namespace SnacksCalculationAPI.Services.Common.Implementation
                 workSheet.Cells[row + 2, column++].Value = item;
             }
              column = 1;
-            workSheet.Cells[rowNumber + 2, column++].Value = "Remaining balance";
+             row = rowNumber + 2;
+            workSheet.Cells[row , column++].Value = "Total Cost";
+            for (int col=0;col<headersId.Count;col++)
+            {
+                workSheet.Cells[row, column++].Value = perUserTotalCost[col];
+            }
+
+            row++;
+            column = 1;
+            workSheet.Cells[row , column++].Value = "Remaining balance";
             for (int col = 0; col < headersId.Count; col++)
             {
                 double value = 0;
@@ -142,7 +138,7 @@ namespace SnacksCalculationAPI.Services.Common.Implementation
                     value = perUserTotalAmount[index].Amount;
 
                 }
-                workSheet.Cells[rowNumber+2, column++].Value = value- perUserTotalCost[col];
+                workSheet.Cells[row , column++].Value = value- perUserTotalCost[col];
 
             }
             
