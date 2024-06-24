@@ -29,8 +29,23 @@ namespace SnacksCalculationAPI.Services.Common.Implementation
     
         public async Task<FileData> GetMonthlyDetailsExcel(string fromDate, string toDate)
         {
-            //  var result = null;
-            var listQuery = from cm in _context.CostModels
+            var lastMonthCostQuery=
+                from cm in _context.CostModels
+                join um in _context.UserModels on cm.UserId equals um.Id
+                where string.Compare(cm.Date, fromDate) <0
+                orderby cm.UserId ascending
+
+                select new UserCostModel
+                {
+                    Id = cm.Id,
+                    UserId = cm.UserId,
+                    Date = cm.Date,
+                    Amount = cm.Amount,
+                    Item = cm.Item,
+                };
+            var lastMonthCostResult = await lastMonthCostQuery.ToListAsync();
+
+            var thisMonthCostQuery = from cm in _context.CostModels
                             join um in _context.UserModels on cm.UserId equals um.Id
                             where string.Compare(cm.Date, fromDate) >= 0 && string.Compare(cm.Date, toDate) <= 0
                             orderby cm.UserId ascending
@@ -43,9 +58,9 @@ namespace SnacksCalculationAPI.Services.Common.Implementation
                                 Amount = cm.Amount,
                                 Item = cm.Item,
                             };
-            var result = await listQuery.ToListAsync();
+            var thisMonthCostResult = await thisMonthCostQuery.ToListAsync();
+
             var userQuery = _context.UserModels.AsQueryable();
-    
             var userList = await userQuery.ToListAsync();
             ExcelPackage excel = new ExcelPackage();
 
@@ -63,7 +78,7 @@ namespace SnacksCalculationAPI.Services.Common.Implementation
             _file.SetTableStyle(workSheet, headers.Count);
             _file.SetHeaderStyle(workSheet, headers.Count);
             _file.InsertHeaders(headers, workSheet);
-             Insert_ExcelRows(toDate, headersId, result, workSheet);
+             Insert_ExcelRows(toDate,fromDate, headersId,  thisMonthCostResult,lastMonthCostResult, workSheet);
             _file.AutoExcelFitColumns(headers.Count, workSheet);
 
             FileData fileData = _file.GetFileData(excel.GetAsByteArray());
@@ -72,9 +87,11 @@ namespace SnacksCalculationAPI.Services.Common.Implementation
         }
 
 
-        private void Insert_ExcelRows(string toDate,List<int> headersId, List<UserCostModel> result, ExcelWorksheet workSheet)
+        private void Insert_ExcelRows(string toDate,string fromDate,List<int> headersId, List<UserCostModel> result, List<UserCostModel>lastMonthCostResult, ExcelWorksheet workSheet)
         {
-            var perUserTotalAmount = _context.UserInformationModels
+            List<double> lastMonthReminingBalance = new List<double>();
+            var perUserlastMonthAmount = _context.UserInformationModels
+                .Where(x => string.Compare(x.Date, fromDate) < 0)
                    .GroupBy(t => t.UserId)
                    .Select(g => new UserCostData
                    {
@@ -83,7 +100,32 @@ namespace SnacksCalculationAPI.Services.Common.Implementation
                    })
                    .ToList();
 
-            int startingRowNumberForData = 2;
+            for(int index=0; index < headersId.Count; index++)
+            {
+                var indexAmount = perUserlastMonthAmount.FindIndex(x => x.UserId == headersId[index]);
+                var indexCost = lastMonthCostResult.FindIndex(x => x.UserId == headersId[index]);
+                double balance = 0;
+                if(indexAmount!=-1)
+                {
+                    balance += perUserlastMonthAmount[indexAmount].Amount;
+                }
+                if (indexCost != -1)
+                {
+                    balance -= lastMonthCostResult[indexCost].Amount;
+                }
+                lastMonthReminingBalance.Insert(index, balance);
+            }
+
+            var perUserThisMonthAmount = _context.UserInformationModels
+               .Where(x => string.Compare(x.Date, fromDate) >= 0)
+                  .GroupBy(t => t.UserId)
+                  .Select(g => new UserCostData
+                  {
+                      UserId = g.Key,
+                      Amount = g.Sum(t => t.Amount)
+                  })
+                  .ToList();
+
             var date = toDate.Substring(0, 8);
             var rowNumber= Int32.Parse(toDate.Substring(8, 2));
             List<double> perUserTotalCost = new List<double>();
@@ -119,11 +161,27 @@ namespace SnacksCalculationAPI.Services.Common.Implementation
                 workSheet.Cells[row + 2, column++].Value = item;
             }
              column = 1;
-             row = rowNumber + 2;
+             row = rowNumber + 3;
             workSheet.Cells[row , column++].Value = "Total Cost";
             for (int col=0;col<headersId.Count;col++)
             {
                 workSheet.Cells[row, column++].Value = perUserTotalCost[col];
+            }
+            row++;
+            column = 1;
+            workSheet.Cells[row, column++].Value = "Total Balance";
+            for (int col = 0; col < headersId.Count; col++)
+            {
+                double value1 = lastMonthReminingBalance[col];
+                double value2 = 0;
+                var index = perUserThisMonthAmount.FindIndex(x => x.UserId == headersId[col]);
+                if (index != -1)
+                {
+                    value2 = perUserThisMonthAmount[index].Amount;
+
+                }
+                workSheet.Cells[row, column++].Value = "("+value1.ToString()+"+"+value2.ToString()+") = "+(value1+value2).ToString();
+
             }
 
             row++;
@@ -132,10 +190,10 @@ namespace SnacksCalculationAPI.Services.Common.Implementation
             for (int col = 0; col < headersId.Count; col++)
             {
                 double value = 0;
-                var index = perUserTotalAmount.FindIndex(x =>  x.UserId == headersId[col]);
+                var index = perUserThisMonthAmount.FindIndex(x =>  x.UserId == headersId[col]);
                 if (index != -1)
                 {
-                    value = perUserTotalAmount[index].Amount;
+                    value = perUserThisMonthAmount[index].Amount;
 
                 }
                 workSheet.Cells[row , column++].Value = value- perUserTotalCost[col];
