@@ -180,7 +180,7 @@ namespace SnacksCalculationAPI.Services.Common.Implementation
                     value2 = perUserThisMonthAmount[index].Amount;
 
                 }
-                workSheet.Cells[row, column++].Value = "("+value1.ToString()+"+"+value2.ToString()+") = "+(value1+value2).ToString();
+                workSheet.Cells[row, column++].Value = value1+value2;
 
             }
 
