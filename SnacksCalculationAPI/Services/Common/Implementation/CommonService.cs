@@ -74,9 +74,9 @@ namespace SnacksCalculationAPI.Services.Common.Implementation
             var date = toDate.Substring(0, 8);
             var rowNumber= Int32.Parse(toDate.Substring(8, 2));
 
-           
+            int column;
             for (int row=0;row< rowNumber; row++) {
-                int column = 1;
+                 column = 1;
                 var rowVal = (row + 1);
                var  day = rowVal.ToString();
                 if(day.Length==1)day = "0"+day;
@@ -98,7 +98,7 @@ namespace SnacksCalculationAPI.Services.Common.Implementation
                 }
                 workSheet.Cells[row + 2, column++].Value = item;
             }
-            int column = 1;
+             column = 1;
             workSheet.Cells[rowNumber + 2, column++].Value = "Remaining balance";
 
         }

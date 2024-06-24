@@ -120,8 +120,6 @@ namespace SnacksCalculationAPI.Controllers
                 FileName = fileData.Name,
                 Inline = true,
             };
-
-
             HttpContext.Response.Headers.Add("Content-Disposition", cd.ToString());
             return File(fileData.Data, "application/octet-stream");
         }
