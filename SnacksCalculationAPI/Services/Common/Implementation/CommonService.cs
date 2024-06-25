@@ -11,6 +11,9 @@ using System.Data;
 using System.Drawing.Printing;
 using System.Drawing;
 using System;
+using Microsoft.Extensions.Configuration;
+using System.Xml.Linq;
+using System.Runtime.InteropServices.JavaScript;
 
 namespace SnacksCalculationAPI.Services.Common.Implementation
 {
@@ -18,11 +21,13 @@ namespace SnacksCalculationAPI.Services.Common.Implementation
     {
         private readonly APIDbContext _context;
         private IFileService _file;
+        public Microsoft.Extensions.Configuration.IConfiguration Configuration { get; }
 
-        public CommonService(APIDbContext context, IFileService file)
+        public CommonService(APIDbContext context, IFileService file, Microsoft.Extensions.Configuration.IConfiguration iConfiguration)
         {
             _context = context;
             _file = file;
+            Configuration = iConfiguration;
         }
         private void SetTableStyle(ExcelWorksheet workSheet, int columnCount)
         {
@@ -199,23 +204,36 @@ namespace SnacksCalculationAPI.Services.Common.Implementation
                 if (index != -1)
                 {
                     value = perUserThisMonthAmount[index].Amount;
-
                 }
                 workSheet.Cells[row , column++].Value = value- perUserTotalCost[col];
-
             }
-            
-
-       
-
         }
 
-        public async Task<FileData> GetexportGeneratedReportExcel(string fromDate, string toDate, int userId)
+        public async Task<FileData> GetExportGeneratedReportExcel(string fromDate, string toDate, int userId)
         {
+            SqlConnection conn = null;
+            SqlDataReader reader = null;
             try
             {
-              var list= await _context.CostModels
-            .FromSqlRaw("EXEC GetMonthlyUserCost @FromDate = {0}, @ToDate = {1}, @UserId = {2}", fromDate, toDate, userId)
+                var connStr = Configuration.GetConnectionString("DefaultConnection");
+                 conn = new SqlConnection(connStr);
+                conn.Open();
+                var spName = "[dbo].[GetMonthlyUserCostData]";
+                var command= new SqlCommand(spName, conn) { CommandType = CommandType.StoredProcedure, CommandTimeout = 0 };
+
+                command.Parameters.Add(new SqlParameter("@FromDate", SqlDbType.NVarChar) { Direction = ParameterDirection.Input, Value = fromDate });
+                command.Parameters.Add(new SqlParameter("@ToDate", SqlDbType.NVarChar) { Direction = ParameterDirection.Input, Value = toDate });
+                command.Parameters.Add(new SqlParameter("@UserId", SqlDbType.Int) { Direction = ParameterDirection.Input, Value = userId });
+
+                reader = await command.ExecuteReaderAsync();
+
+                await reader.NextResultAsync();
+
+
+
+
+                var list = await _context.CostModels
+            .FromSqlRaw("EXEC GetMonthlyUserCostData @FromDate = {0}, @ToDate = {1}, @UserId = {2}", fromDate, toDate, userId)
             .ToListAsync();
                 var headers = new List<string>();
                 headers = ["Date","Amount","Item"];
