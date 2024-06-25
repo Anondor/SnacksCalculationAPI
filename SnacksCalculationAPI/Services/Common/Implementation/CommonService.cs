@@ -14,6 +14,7 @@ using System;
 using Microsoft.Extensions.Configuration;
 using System.Xml.Linq;
 using System.Runtime.InteropServices.JavaScript;
+using System.Web;
 
 namespace SnacksCalculationAPI.Services.Common.Implementation
 {
@@ -215,6 +216,9 @@ namespace SnacksCalculationAPI.Services.Common.Implementation
             SqlDataReader reader = null;
             try
             {
+                var records = new List<CostModel>();
+                double totalCost=0,totalAmount=0;
+
                 var connStr = Configuration.GetConnectionString("DefaultConnection");
                  conn = new SqlConnection(connStr);
                 conn.Open();
@@ -226,15 +230,37 @@ namespace SnacksCalculationAPI.Services.Common.Implementation
                 command.Parameters.Add(new SqlParameter("@UserId", SqlDbType.Int) { Direction = ParameterDirection.Input, Value = userId });
 
                 reader = await command.ExecuteReaderAsync();
+                while (await reader.ReadAsync())
+                {
+                    records.Add(new CostModel()
+                    {//Convert.ToInt32(reader["Id"]);
+                        Id = Convert.ToInt32(reader["Id"]),
+                        UserId = Convert.ToInt32(reader["UserId"]),
+                        Date = HttpUtility.HtmlDecode(reader.GetString(reader.GetOrdinal("Date"))),
+                        Amount = Convert.ToInt32(reader["Amount"]),
+                        Item = HttpUtility.HtmlDecode(reader.GetString(reader.GetOrdinal("Item"))),
+
+                    });
+                }
 
                 await reader.NextResultAsync();
 
+                while (await reader.ReadAsync())
+                {
+                    totalCost = Convert.ToInt32(reader["Amount"]);
+                }
+
+                await reader.NextResultAsync();
+
+                while (await reader.ReadAsync())
+                {
+                    totalAmount = Convert.ToInt32(reader["Amount"]);
+                }
 
 
 
-                var list = await _context.CostModels
-            .FromSqlRaw("EXEC GetMonthlyUserCostData @FromDate = {0}, @ToDate = {1}, @UserId = {2}", fromDate, toDate, userId)
-            .ToListAsync();
+
+               
                 var headers = new List<string>();
                 headers = ["Date","Amount","Item"];
                 ExcelPackage excel = new ExcelPackage();
@@ -243,7 +269,7 @@ namespace SnacksCalculationAPI.Services.Common.Implementation
                 _file.SetHeaderStyle(workSheet, headers.Count);
                 _file.InsertHeaders(headers, workSheet);
 
-                Insert_UserDataExcelRows(list, workSheet);
+                Insert_UserDataExcelRows(records, workSheet,totalCost,totalAmount);
                 _file.AutoExcelFitColumns(headers.Count, workSheet);
 
                 FileData fileData = _file.GetFileData(excel.GetAsByteArray());
@@ -258,15 +284,28 @@ namespace SnacksCalculationAPI.Services.Common.Implementation
 
         }
 
-        private void Insert_UserDataExcelRows(List<CostModel> list, ExcelWorksheet workSheet)
+        private void Insert_UserDataExcelRows(List<CostModel> list, ExcelWorksheet workSheet, double totalCost, double totalAmount)
         {
+            int row = 2;
             for(int index = 0;index<list.Count;index++)
             {
                 int column = 1;
-                workSheet.Cells[index + 2, column++].Value = list[index].Date;
-                workSheet.Cells[index + 2, column++].Value = list[index].Amount;
-                workSheet.Cells[index+2, column++].Value = list[index].Item;
+                workSheet.Cells[row , column++].Value = list[index].Date;
+                workSheet.Cells[row , column++].Value = list[index].Amount;
+                workSheet.Cells[row, column++].Value = list[index].Item;
+                row++;
             }
+            row++;
+            workSheet.Cells[row, 1].Value = "Total Cost";
+            workSheet.Cells[row, 2].Value = totalCost;
+            row++;
+            workSheet.Cells[row, 1].Value = "Total Amount";
+            workSheet.Cells[row, 2].Value = totalAmount;
+            row++;
+            workSheet.Cells[row, 1].Value = "Remaining Balance";
+            workSheet.Cells[row, 2].Value = totalAmount- totalCost;
+
+
         }
     }
 }
