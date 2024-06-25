@@ -3,9 +3,14 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using OfficeOpenXml;
 using SnacksCalculationAPI;
 using SnacksCalculationAPI.Models;
 using SnacksCalculationAPI.Services.AuthService;
+using SnacksCalculationAPI.Services.Common.Implementation;
+using SnacksCalculationAPI.Services.Common.Interfaces;
+using SnacksCalculationAPI.Services.FileUtility.Implementation;
+using SnacksCalculationAPI.Services.FileUtility.Interfaces;
 using SnacksCalculationAPI.Services.MailService.Implementation;
 using SnacksCalculationAPI.Services.MailService.Interface;
 
@@ -24,6 +29,8 @@ builder.Services.AddCors(options =>
 });
 builder.Services.AddDbContext<APIDbContext>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<ICommonService, CommonService>();
+builder.Services.AddScoped<IFileService, FileService>();
 builder.Services.AddSwaggerGen(setup =>
 {
     // Include 'SecurityScheme' to use JWT Authentication
@@ -42,11 +49,12 @@ builder.Services.AddSwaggerGen(setup =>
     var jwtSecurityScheme = new OpenApiSecurityScheme
     {
         BearerFormat = "JWT",
-        Name = "JWT Authentication",
+        Name = "Authorization",
         In = ParameterLocation.Header,
-        Type = SecuritySchemeType.Http,
+        Type = SecuritySchemeType.ApiKey,
         Scheme = JwtBearerDefaults.AuthenticationScheme,
-        Description = "Put **_ONLY_** your JWT Bearer token on textbox below!",
+        Description = "JWT Authorization header using the Bearer scheme. \r\n\r\n Enter 'Bearer' [space] and then your token in the text input below.\r\n\r\nExample: \"Bearer 12345abcdef\"",
+
 
         Reference = new OpenApiReference
         {
@@ -88,6 +96,7 @@ builder.Services.AddAuthentication(opt =>
 builder.Services.Configure<MailSettings>(builder.Configuration.GetSection("MailSettings"));
 builder.Services.AddTransient<IMailService, MailService>();
 
+ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
 
 var app = builder.Build();
 

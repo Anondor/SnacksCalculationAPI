@@ -20,14 +20,14 @@ namespace SnacksCalculationAPI.Controllers
         }
         [HttpPost]
 
-        public async Task<ActionResult<ApiResponse>> Save(UserInformationModel model)
+        public async Task<ActionResult<ApiResponse>> SaveAmount(UserInformationModel model)
         {
             var response = new ApiResponse();
 
             try
             {
-                await _context.UserInformationModels.AddAsync(model);
-                await _context.SaveChangesAsync();
+                 await _context.UserInformationModels.AddAsync(model);
+               await _context.SaveChangesAsync();
 
                 response.StatusCode = (int)HttpStatusCode.OK;
                 response.Message = "User Cost Information  save Successfully";
@@ -42,14 +42,71 @@ namespace SnacksCalculationAPI.Controllers
                 return response;
             }
         }
+        [HttpGet("userAmount")]
+        public async Task<ActionResult<ApiResponse>> getAllUserMoney()
+        {
+            var response = new ApiResponse();   
+            try
+            {
+                var listQuery = _context.UserInformationModels.GroupBy(x => x.UserId).Select(g => new
+                {
+                    UserId = g.Key,
+                    TotalAmount = g.Sum(t => t.Amount)
+                });
+              
+                var list = await listQuery.ToListAsync();
 
-        [HttpPut("update")]
-        public async Task<ActionResult<ApiResponse>>Update(UserInformationModel model)
+        
+
+                response.Result = list;
+
+            }
+            catch (Exception ex)
+            {
+                response.Result = null;
+                response.StatusCode = (int)HttpStatusCode.BadRequest;
+                response.ResponseException = ex.Message;
+                response.IsError = true;
+            }
+
+            return response;
+        }
+        [HttpGet("userCostAmount")]
+        public async Task<ActionResult<ApiResponse>> getAllUserCostMoney()
         {
             var response = new ApiResponse();
             try
             {
-                var dbModel = await _context.UserInformationModels.FirstOrDefaultAsync(x => x.UserId == model.UserId && x.Date==model.Date);
+                var listQuery = _context.CostModels.GroupBy(x => x.UserId).Select(g => new
+                {
+                    UserId = g.Key,
+                    TotalAmount = g.Sum(t => t.Amount)
+                });
+
+                var list = await listQuery.ToListAsync();
+
+
+                response.Result = list;
+
+            }
+            catch (Exception ex)
+            {
+                response.Result = null;
+                response.StatusCode = (int)HttpStatusCode.BadRequest;
+                response.ResponseException = ex.Message;
+                response.IsError = true;
+            }
+
+            return response;
+        }
+
+        [HttpPut("update")]
+        public async Task<ActionResult<ApiResponse>>Update(CostModel model)
+        {
+            var response = new ApiResponse();
+            try
+            {
+                var dbModel = await _context.CostModels.FirstOrDefaultAsync(x => x.UserId == model.UserId && x.Date==model.Date);
 
                 if (dbModel == null)
                 {
@@ -59,8 +116,8 @@ namespace SnacksCalculationAPI.Controllers
                 }
                 dbModel.Amount = model.Amount;
   
-                dbModel.ItemName = model.ItemName;
-                _context.UserInformationModels.Update(dbModel);
+                dbModel.Item = model.Item;
+                _context.CostModels.Update(dbModel);
                 await _context.SaveChangesAsync();
                 response.StatusCode = (int)HttpStatusCode.OK;
                 response.Message = "Data Updated";
