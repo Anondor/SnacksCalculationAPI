@@ -6,6 +6,11 @@ using SnacksCalculationAPI.Services.FileUtility.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using SnacksCalculationAPI.Models;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.Data.SqlClient;
+using System.Data;
+using System.Drawing.Printing;
+using System.Drawing;
+using System;
 
 namespace SnacksCalculationAPI.Services.Common.Implementation
 {
@@ -203,6 +208,47 @@ namespace SnacksCalculationAPI.Services.Common.Implementation
 
        
 
+        }
+
+        public async Task<FileData> GetexportGeneratedReportExcel(string fromDate, string toDate, int userId)
+        {
+            try
+            {
+              var list= await _context.CostModels
+            .FromSqlRaw("EXEC GetMonthlyUserCost @FromDate = {0}, @ToDate = {1}, @UserId = {2}", fromDate, toDate, userId)
+            .ToListAsync();
+                var headers = new List<string>();
+                headers = ["Date","Amount","Item"];
+                ExcelPackage excel = new ExcelPackage();
+                var workSheet = excel.Workbook.Worksheets.Add("Sheet1");
+                _file.SetTableStyle(workSheet, headers.Count);
+                _file.SetHeaderStyle(workSheet, headers.Count);
+                _file.InsertHeaders(headers, workSheet);
+
+                Insert_UserDataExcelRows(list, workSheet);
+                _file.AutoExcelFitColumns(headers.Count, workSheet);
+
+                FileData fileData = _file.GetFileData(excel.GetAsByteArray());
+                excel.Dispose();
+                return fileData;
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+
+
+        }
+
+        private void Insert_UserDataExcelRows(List<CostModel> list, ExcelWorksheet workSheet)
+        {
+            for(int index = 0;index<list.Count;index++)
+            {
+                int column = 1;
+                workSheet.Cells[index + 2, column++].Value = list[index].Date;
+                workSheet.Cells[index + 2, column++].Value = list[index].Amount;
+                workSheet.Cells[index+2, column++].Value = list[index].Item;
+            }
         }
     }
 }

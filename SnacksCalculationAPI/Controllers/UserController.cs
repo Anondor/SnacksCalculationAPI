@@ -123,7 +123,22 @@ namespace SnacksCalculationAPI.Controllers
             HttpContext.Response.Headers.Add("Content-Disposition", cd.ToString());
             return File(fileData.Data, "application/octet-stream");
         }
-          
+        
+        [HttpGet("exportGeneratedReport")]
+
+        public async Task<FileContentResult> exportGeneratedReport(string fromDate, string toDate, int userId)
+        {
+            FileData fileData = await _commonService.GetexportGeneratedReportExcel(fromDate, toDate, userId);
+
+            var cd = new System.Net.Mime.ContentDisposition
+            {
+                FileName = fileData.Name,
+                Inline = true,
+            };
+            HttpContext.Response.Headers.Add("Content-Disposition", cd.ToString());
+            return File(fileData.Data, "application/octet-stream");
+        }
+
         [HttpGet("getMonthlyCost")]
         public async Task<ActionResult<ApiResponse>> getMonthlyCostInfo(string fromDate, string toDate)
         {

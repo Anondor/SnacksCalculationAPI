@@ -64,7 +64,7 @@ namespace SnacksCalculationAPI.Services.AuthService
                     configuration["Tokens:Issuer"],
                     configuration["Tokens:Audience"],
                     claims,
-                    expires: DateTime.UtcNow.AddMinutes(1.00),
+                    expires: DateTime.UtcNow.AddDays(1.00),
                     signingCredentials: cred
                     );
                 var results = new
