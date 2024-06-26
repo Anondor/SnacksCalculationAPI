@@ -7,23 +7,26 @@ using SnacksCalculationAPI.Filters;
 using Microsoft.EntityFrameworkCore;
 using SnacksCalculationAPI.Services.Common.Interfaces;
 using SnacksCalculationAPI.Services.FileUtility.Implementation;
+using SnacksCalculationAPI.Services.Mail.Interface;
 
 namespace SnacksCalculationAPI.Controllers
 {
     [Route("api/[controller]")]
-    [JwtAuthorize]
+   // [JwtAuthorize]
    
     [ApiController]
     public class UserController : ControllerBase
     {
         private readonly APIDbContext _context;
         private readonly ICommonService _commonService;
+        private readonly IMailService _mailService;
 
 
-        public UserController(APIDbContext context, ICommonService commonService)
+        public UserController(APIDbContext context, ICommonService commonService, IMailService mailService)
         {
             _context = context;
             _commonService = commonService;
+            _mailService = mailService;
         }
         [HttpPost]
         public async Task<ActionResult<ApiResponse>>Save(UserModel model)
@@ -200,6 +203,13 @@ namespace SnacksCalculationAPI.Controllers
                 return response;
             }
         }
-        
+
+        [HttpPost]
+        [Route("SendMail")]
+        public bool SendMail(MailData mailData)
+        {
+            return _mailService.SendMail(mailData);
+        }
+
     }
 }

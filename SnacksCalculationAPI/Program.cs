@@ -10,6 +10,8 @@ using SnacksCalculationAPI.Services.Common.Implementation;
 using SnacksCalculationAPI.Services.Common.Interfaces;
 using SnacksCalculationAPI.Services.FileUtility.Implementation;
 using SnacksCalculationAPI.Services.FileUtility.Interfaces;
+using SnacksCalculationAPI.Services.Mail.Implementation;
+using SnacksCalculationAPI.Services.Mail.Interface;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -18,7 +20,22 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(c =>
+{
+    c.SwaggerDoc("v1", new OpenApiInfo
+    {
+        Title = "Example API",
+        Version = "v1",
+        Description = "An example of an ASP.NET Core Web API",
+        Contact = new OpenApiContact
+        {
+            Name = "Example Contact",
+            Email = "example@example.com",
+            Url = new Uri("https://example.com/contact"),
+        },
+    });
+
+});
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAll",
@@ -56,6 +73,8 @@ builder.Services.AddSwaggerGen(setup =>
     });
 
 });
+builder.Services.Configure<MailSettings>(builder.Configuration.GetSection("MailSettings"));
+ builder.Services.AddTransient<IMailService, MailService>();
 builder.Services.AddAuthentication(opt =>
 {
     opt.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -86,7 +105,10 @@ var app = builder.Build();
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
-    app.UseSwaggerUI();
+    app.UseSwaggerUI(options =>
+    {
+        options.SwaggerEndpoint("/swagger/v1/swagger.json", "v1");
+    });
 }
 app.UseAuthentication();
 app.UseHttpsRedirection();
