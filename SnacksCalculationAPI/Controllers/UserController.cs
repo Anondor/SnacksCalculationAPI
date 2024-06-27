@@ -64,6 +64,11 @@ namespace SnacksCalculationAPI.Controllers
         public async Task<ActionResult<ApiResponse>> SaveCostInfo(UserCostModel[] model)
         {
             var response = new ApiResponse();
+            var hasPermission = await _commonService.HasPermission();
+            if (!hasPermission)
+            {
+                throw new Exception("Permission denied.");
+            }
 
             try
             {

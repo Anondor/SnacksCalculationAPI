@@ -7,5 +7,6 @@ namespace SnacksCalculationAPI.Services.Common.Interfaces
         
         Task<FileData> GetMonthlyDetailsExcel(string fromDate, string toDate);
         Task<FileData> GetexportGeneratedReportExcel(string fromDate, string toDate,int userId);
+        Task<bool> HasPermission();
     }
 }

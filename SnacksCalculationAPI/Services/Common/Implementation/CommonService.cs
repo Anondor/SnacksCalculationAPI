@@ -250,5 +250,12 @@ namespace SnacksCalculationAPI.Services.Common.Implementation
                 workSheet.Cells[index+2, column++].Value = list[index].Item;
             }
         }
+
+        public Task<bool> HasPermission()
+        {
+            var user = AppIdentity.AppUser;
+
+            throw new NotImplementedException();
+        }
     }
 }
