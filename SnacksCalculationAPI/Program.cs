@@ -1,10 +1,13 @@
+using System.Security.Principal;
 using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using OfficeOpenXml;
 using SnacksCalculationAPI;
+using SnacksCalculationAPI.Helpers;
 using SnacksCalculationAPI.Services.AuthService;
 using SnacksCalculationAPI.Services.Common.Implementation;
 using SnacksCalculationAPI.Services.Common.Interfaces;
@@ -28,6 +31,11 @@ builder.Services.AddDbContext<APIDbContext>(options => options.UseSqlServer(buil
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<ICommonService, CommonService>();
 builder.Services.AddScoped<IFileService, FileService>();
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddScoped<HttpHelper>();
+
+
+
 builder.Services.AddSwaggerGen(setup =>
 {
     // Include 'SecurityScheme' to use JWT Authentication

@@ -1,13 +1,15 @@
 ﻿
 namespace SnacksCalculationAPI.Helpers
 {
-    public static class HttpHelper
+    public  class HttpHelper
     {
-        private static IHttpContextAccessor _accessor;
-        public static void Configure(IHttpContextAccessor httpContextAccessor)
+        private readonly IHttpContextAccessor _httpContextAccessor;
+
+        public HttpHelper(IHttpContextAccessor httpContextAccessor)
         {
-            _accessor = httpContextAccessor;
+            _httpContextAccessor = httpContextAccessor ?? throw new ArgumentNullException(nameof(httpContextAccessor));
         }
-        public static HttpContext HttpContext => _accessor.HttpContext;
+
+        public HttpContext HttpContext => _httpContextAccessor.HttpContext;
     }
 }

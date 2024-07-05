@@ -11,6 +11,7 @@ using System.Data;
 using System.Drawing.Printing;
 using System.Drawing;
 using System;
+using SnacksCalculationAPI.Helpers;
 
 namespace SnacksCalculationAPI.Services.Common.Implementation
 {
@@ -18,11 +19,13 @@ namespace SnacksCalculationAPI.Services.Common.Implementation
     {
         private readonly APIDbContext _context;
         private IFileService _file;
+        private readonly HttpHelper _httpHelper;
 
-        public CommonService(APIDbContext context, IFileService file)
+        public CommonService(APIDbContext context, IFileService file, HttpHelper httpHelper)
         {
             _context = context;
             _file = file;
+            _httpHelper = httpHelper;
         }
         private void SetTableStyle(ExcelWorksheet workSheet, int columnCount)
         {
@@ -253,7 +256,7 @@ namespace SnacksCalculationAPI.Services.Common.Implementation
 
         public Task<bool> HasPermission()
         {
-            var user = AppIdentity.AppUser;
+            var user = _httpHelper.HttpContext;
 
             throw new NotImplementedException();
         }

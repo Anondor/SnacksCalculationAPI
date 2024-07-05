@@ -10,6 +10,8 @@ namespace SnacksCalculationAPI
         {
             get
             {
+                
+                
                 if (HttpHelper.HttpContext == null)
                 {
                     return ClaimExtension.EmptyAppUser;
