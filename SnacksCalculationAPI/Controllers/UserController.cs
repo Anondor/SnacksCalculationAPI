@@ -128,7 +128,7 @@ namespace SnacksCalculationAPI.Controllers
 
         public async Task<FileContentResult> exportGeneratedReport(string fromDate, string toDate, int userId)
         {
-            FileData fileData = await _commonService.GetexportGeneratedReportExcel(fromDate, toDate, userId);
+            FileData fileData = await _commonService.GetExportGeneratedReportExcel(fromDate, toDate, userId);
 
             var cd = new System.Net.Mime.ContentDisposition
             {
