@@ -16,6 +16,7 @@ using System.Xml.Linq;
 using System.Runtime.InteropServices.JavaScript;
 using System.Web;
 using Microsoft.AspNetCore.JsonPatch.Internal;
+using System.Reflection.PortableExecutable;
 
 namespace SnacksCalculationAPI.Services.Common.Implementation
 {
@@ -187,6 +188,7 @@ namespace SnacksCalculationAPI.Services.Common.Implementation
             }
              column = 1;
              row = rowNumber + 3;
+            workSheet.Cells[row, column].Style.Font.Bold = true;
             workSheet.Cells[row , column++].Value = "Total Cost";
             for (int col=0;col<headersId.Count;col++)
             {
@@ -194,6 +196,7 @@ namespace SnacksCalculationAPI.Services.Common.Implementation
             }
             row++;
             column = 1;
+            workSheet.Cells[row, column].Style.Font.Bold = true;
             workSheet.Cells[row, column++].Value = "Total Balance";
             for (int col = 0; col < headersId.Count; col++)
             {
@@ -209,6 +212,7 @@ namespace SnacksCalculationAPI.Services.Common.Implementation
 
             row++;
             column = 1;
+            workSheet.Cells[row, column].Style.Font.Bold = true;
             workSheet.Cells[row , column++].Value = "Remaining balance";
             for (int col = 0; col < headersId.Count; col++)
             {
@@ -294,6 +298,7 @@ namespace SnacksCalculationAPI.Services.Common.Implementation
         private void Insert_UserDataExcelRows(List<CostModel> list, ExcelWorksheet workSheet, double totalCost, double totalAmount)
         {
             int row = 2;
+            double totalMonthlyCost = 0.0;
             for(int index = 0;index<list.Count;index++)
             {
                 int column = 1;
@@ -301,14 +306,20 @@ namespace SnacksCalculationAPI.Services.Common.Implementation
                 workSheet.Cells[row , column++].Value = list[index].Amount;
                 workSheet.Cells[row, column++].Value = list[index].Item;
                 row++;
+                totalMonthlyCost += list[index].Amount;
             }
             row++;
+             workSheet.Cells[row,1].Style.Font.Bold = true;
             workSheet.Cells[row, 1].Value = "Total Cost";
-            workSheet.Cells[row, 2].Value = totalCost;
+           
+
+            workSheet.Cells[row, 2].Value = totalMonthlyCost;
             row++;
+            workSheet.Cells[row, 1].Style.Font.Bold = true;
             workSheet.Cells[row, 1].Value = "Total Amount";
-            workSheet.Cells[row, 2].Value = totalAmount;
+            workSheet.Cells[row, 2].Value = totalAmount- totalCost+ totalMonthlyCost;
             row++;
+            workSheet.Cells[row, 1].Style.Font.Bold = true;
             workSheet.Cells[row, 1].Value = "Remaining Balance";
             workSheet.Cells[row, 2].Value = totalAmount- totalCost;
 
