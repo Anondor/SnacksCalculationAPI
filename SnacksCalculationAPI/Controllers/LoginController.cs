@@ -49,8 +49,7 @@ namespace SnacksCalculationAPI.Controllers
                 }
                 catch (Exception ex)
                 {
-                    // ex.ToWriteLog();
-
+                    
                     apiResult.StatusCode = 500;
                     apiResult.Status = "Fail";
                     apiResult.Msg = ex.Message;

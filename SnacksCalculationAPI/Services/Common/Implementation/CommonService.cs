@@ -15,7 +15,6 @@ using Microsoft.Extensions.Configuration;
 using System.Xml.Linq;
 using System.Runtime.InteropServices.JavaScript;
 using System.Web;
-using Microsoft.AspNetCore.JsonPatch.Internal;
 using System.Reflection.PortableExecutable;
 
 namespace SnacksCalculationAPI.Services.Common.Implementation

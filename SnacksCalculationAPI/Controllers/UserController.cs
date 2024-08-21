@@ -36,15 +36,17 @@ namespace SnacksCalculationAPI.Controllers
                 if (userQuery != null)
                 {
                     response.Message = "Your phone number or email is already exists";
+                    response.IsError = true;
+
                     return response;
                 }
 
                 else
                 {    await _context.UserModels.AddAsync(model);
-                await _context.SaveChangesAsync();
+                 await _context.SaveChangesAsync();
 
                 response.StatusCode = (int)HttpStatusCode.OK;
-                response.Message = "User data  save Successfully";
+                response.Message = "Save information successfully";
                 return response;
 
                 }
@@ -111,7 +113,7 @@ namespace SnacksCalculationAPI.Controllers
         }
         [HttpGet("exportReport")]
 
-        public async Task<FileContentResult> exportReport(string fromDate, string toDate)
+        public async Task<FileContentResult> ExportReport(string fromDate, string toDate)
         {
             FileData fileData = await _commonService.GetMonthlyDetailsExcel(fromDate, toDate);
 
@@ -126,7 +128,7 @@ namespace SnacksCalculationAPI.Controllers
         
         [HttpGet("exportGeneratedReport")]
 
-        public async Task<FileContentResult> exportGeneratedReport(string fromDate, string toDate, int userId)
+        public async Task<FileContentResult> ExportGeneratedReport(string fromDate, string toDate, int userId)
         {
             FileData fileData = await _commonService.GetExportGeneratedReportExcel(fromDate, toDate, userId);
 
@@ -140,7 +142,7 @@ namespace SnacksCalculationAPI.Controllers
         }
 
         [HttpGet("getMonthlyCost")]
-        public async Task<ActionResult<ApiResponse>> getMonthlyCostInfo(string fromDate, string toDate)
+        public async Task<ActionResult<ApiResponse>> GetMonthlyCostInfo(string fromDate, string toDate)
         {
             var response = new ApiResponse();
 
@@ -177,7 +179,7 @@ namespace SnacksCalculationAPI.Controllers
         }
 
 
-        [HttpGet("UserList")]
+        [HttpGet("userList")]
         public async Task<ActionResult<ApiResponse>> GetAllUser()
         {
             var response = new ApiResponse();
