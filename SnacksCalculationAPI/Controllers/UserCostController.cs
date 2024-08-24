@@ -42,6 +42,29 @@ namespace SnacksCalculationAPI.Controllers
                 return response;
             }
         }
+        [HttpGet("getUserAmounById")]
+        public async Task<ActionResult<ApiResponse>> getUserAmounById(string fromDate, string toDate, int userId)
+        {
+            var response = new ApiResponse();
+            try
+            {
+                var list = await _context.UserInformationModels.Where(x=>x.UserId == userId && string.Compare(x.Date, fromDate) >= 0 && string.Compare(x.Date, toDate) <= 0).ToListAsync();
+
+                response.Result = list;
+                response.StatusCode = (int)HttpStatusCode.OK;
+
+            }
+            catch (Exception ex)
+            {
+                response.Result = null;
+                response.StatusCode = (int)HttpStatusCode.BadRequest;
+                response.ResponseException = ex.Message;
+                response.IsError = true;
+            }
+
+            return response;
+        }
+
         [HttpGet("userAmount")]
         public async Task<ActionResult<ApiResponse>> getAllUserMoney()
         {
