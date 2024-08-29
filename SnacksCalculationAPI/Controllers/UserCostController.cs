@@ -48,7 +48,7 @@ namespace SnacksCalculationAPI.Controllers
             var response = new ApiResponse();
             try
             {
-                var list = await _context.UserInformationModels.Where(x=>x.UserId == userId && string.Compare(x.Date, fromDate) >= 0 && string.Compare(x.Date, toDate) <= 0).ToListAsync();
+                var list = await _context.UserInformationModels.Where(x=>x.UserId == userId && string.Compare(x.Date, fromDate) >= 0 && string.Compare(x.Date, toDate) <= 0 ).OrderBy(x => x.Date).ToListAsync();
 
                 response.Result = list;
                 response.StatusCode = (int)HttpStatusCode.OK;
